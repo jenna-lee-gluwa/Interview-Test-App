@@ -62,11 +62,11 @@
         <h1>Login</h1>
         <p class="sub">Log in with your email and password.</p>
         <label for="login-email">Email</label>
-        <input id="login-email" type="email" placeholder="name@example.com" autocomplete="email" required />
+        <input id="login-email" type="email" placeholder="name@gluwa.com" autocomplete="email" required />
         <div id="login-email-error" class="error">유효한 이메일을 입력해주세요.</div>
         <label for="login-password">Password</label>
         <div class="input-wrapper">
-          <input id="login-password" type="text" autocomplete="current-password" required />
+          <input id="login-password" type="text" placeholder="Enter your password" autocomplete="current-password" required />
           <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12c-2.48 0-4.5-2.02-4.5-4.5S9.52 7.5 12 7.5s4.5 2.02 4.5 4.5S14.48 16.5 12 16.5z"/></svg>
         </div>
         <div id="login-password-error" class="error">패스워드를 입력해주세요.</div>
@@ -275,26 +275,3 @@
 
     // Toggle buttons
     $('toggle-forgot-payload').addEventListener('click',()=>{
-      $('forgot-payload').classList.toggle('hidden');
-    });
-    $('toggle-send-payload').addEventListener('click',()=>{
-      $('send-payload').classList.toggle('hidden');
-    });
-
-    // Log out link (reset most UI but keep Send values, then go back to login)
-    $('link-back-login2').addEventListener('click',(e)=>{
-      e.preventDefault();
-      localStorage.removeItem('demo_email');
-      // keep previous send inputs by saving draft, then only clear messages
-      saveSendDraft();
-      resetUIKeepSend();
-      location.hash='#/login';
-      show('login');
-      loginEmail.focus();
-    });
-
-    // Load draft early (in case user starts at /send)
-    loadSendDraft();
-  </script>
-</body>
-</html>
