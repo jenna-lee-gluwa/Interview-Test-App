@@ -200,7 +200,8 @@
       saveSendDraft();
     }
 
-    $('btn-login').addEventListener('click',()=>{
+    $('btn-login').addEventListener('click',(e)=>{
+      e.preventDefault();
       const email=loginEmail.value.trim();
       const pass=loginPass.value;
       let ok=true;
@@ -209,8 +210,8 @@
       if(!ok) return;
       localStorage.setItem('demo_email',email);
       location.hash='#/send';
+      // Fallback in case hashchange is blocked by SPA host
       show('send');
-      sendTo.focus();
     });
 
     $('link-forgot').addEventListener('click',()=>{
@@ -273,5 +274,23 @@
       }
     });
 
-    // Toggle buttons
-    $('toggle-forgot-payload').addEventListener('click',()=>{
+    // Toggle buttons (fixed)
+    document.getElementById('toggle-forgot-payload').addEventListener('click',()=>{
+      $('forgot-payload').classList.toggle('hidden');
+    });
+    document.getElementById('toggle-send-payload').addEventListener('click',()=>{
+      $('send-payload').classList.toggle('hidden');
+    });
+
+    // Log out / Switch account
+    document.getElementById('link-back-login2').addEventListener('click',(e)=>{
+      e.preventDefault();
+      localStorage.removeItem('demo_email');
+      resetUIKeepSend();
+      location.hash='#/login';
+      show('login');
+      loginEmail.focus();
+    });
+  </script>
+</body>
+</html>
