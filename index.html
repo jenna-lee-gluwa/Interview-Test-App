@@ -134,21 +134,144 @@
     const isEmail=(v)=>/.+@.+\..+/.test(v);
     const parseAmount=(v)=>{if(v==="")return NaN;const n=parseFloat(String(v).replace(/,/g,'').trim());return isNaN(n)?NaN:n;};
 
-    function show(page){pgLogin.classList.add('hidden');pgForgot.classList.add('hidden');pgSend.classList.add('hidden');if(page==='login')pgLogin.classList.remove('hidden');if(page==='forgot')pgForgot.classList.remove('hidden');if(page==='send')pgSend.classList.remove('hidden');}
+    // ---- Send form draft persistence ----
+    const SEND_DRAFT_KEY='send_draft_v1';
+    function saveSendDraft(){
+      const draft={to: sendTo.value, amount: sendAmount.value};
+      localStorage.setItem(SEND_DRAFT_KEY, JSON.stringify(draft));
+    }
+    function loadSendDraft(){
+      try{
+        const raw=localStorage.getItem(SEND_DRAFT_KEY);
+        if(!raw) return;
+        const d=JSON.parse(raw);
+        if(d && typeof d==='object'){
+          if(typeof d.to==='string') sendTo.value=d.to;
+          if(typeof d.amount==='string') sendAmount.value=d.amount;
+        }
+      }catch{}
+    }
+    sendTo.addEventListener('input', saveSendDraft);
+    sendAmount.addEventListener('input', saveSendDraft);
 
-    function routeFromHash(){const h=(location.hash||'#/login').toLowerCase();if(h.startsWith('#/send')){show('send');return;}if(h.startsWith('#/forgot')){show('forgot');return;}show('login');}
+    function show(page){
+      pgLogin.classList.add('hidden');
+      pgForgot.classList.add('hidden');
+      pgSend.classList.add('hidden');
+      if(page==='login') pgLogin.classList.remove('hidden');
+      if(page==='forgot') pgForgot.classList.remove('hidden');
+      if(page==='send') { pgSend.classList.remove('hidden'); loadSendDraft(); }
+    }
+
+    function routeFromHash(){
+      const h=(location.hash||'#/login').toLowerCase();
+      if(h.startsWith('#/send')){show('send');return;}
+      if(h.startsWith('#/forgot')){show('forgot');return;}
+      show('login');
+    }
     routeFromHash();
     window.addEventListener('hashchange',routeFromHash);
 
-    $('btn-login').addEventListener('click',()=>{const email=loginEmail.value.trim();const pass=loginPass.value;let ok=true;if(!isEmail(email)){loginEmailErr.style.display='block';ok=false;}else{loginEmailErr.style.display='none';}if(!pass){loginPassErr.style.display='block';ok=false;}else{loginPassErr.style.display='none';}if(!ok)return;localStorage.setItem('demo_email',email);location.hash='#/send';show('send');sendTo.focus();});
+    // Reset most UI (but KEEP Send inputs)
+    function resetUIKeepSend(){
+      // Login
+      loginEmail.value='';
+      loginPass.value='';
+      loginEmailErr.style.display='none';
+      loginPassErr.style.display='none';
 
-    $('link-forgot').addEventListener('click',(e)=>{if(isEmail(loginEmail.value.trim())){forgotEmail.value=loginEmail.value.trim();}});
+      // Forgot
+      forgotEmail.value='';
+      forgotEmailErr.style.display='none';
+      forgotOk.style.display='none';
+      forgotPayloadPre.textContent='';
+      document.getElementById('forgot-payload-section').classList.add('hidden');
+      $('forgot-payload').classList.add('hidden');
 
-    $('link-back-login').addEventListener('click',(e)=>{e.preventDefault();location.hash='#/login';show('login');});
+      // Send (do NOT clear values)
+      sendToErr.style.display='none';
+      sendAmountErr.style.display='none';
+      sendOk.style.display='none';
+      sendPayloadPre.textContent='';
+      document.getElementById('send-payload-section').classList.add('hidden');
+      $('send-payload').classList.add('hidden');
 
-    $('btn-forgot-send').addEventListener('click',async()=>{const email=(forgotEmail.value||'').trim();if(!isEmail(email)){forgotEmailErr.style.display='block';return;}forgotEmailErr.style.display='none';const body={email,action:'forgot_password',ts:new Date().toISOString(),userAgent:navigator.userAgent};forgotPayloadPre.textContent=JSON.stringify(body,null,2);document.getElementById('forgot-payload-section').classList.remove('hidden');forgotOk.style.display='block';if(endpoint){try{const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});let text=await res.text();try{text=JSON.stringify(JSON.parse(text),null,2)}catch{}forgotPayloadPre.textContent+="\n\n--- Response ("+res.status+") ---\n"+text;}catch(e){forgotPayloadPre.textContent+="\n\n--- POST Error ---\n"+(e.message||e);}}});
+      // Ensure the latest typed values are saved
+      saveSendDraft();
+    }
 
-    $('btn-send-amount').addEventListener('click',async()=>{sendToErr.style.display='none';sendAmountErr.style.display='none';sendOk.style.display='none';document.getElementById('send-payload-section').classList.remove('hidden');const to=(sendTo.value||'').trim();const amt=parseAmount(sendAmount.value);let ok=true;if(!isEmail(to)){sendToErr.style.display='block';ok=false;}if(isNaN(amt)){sendAmountErr.style.display='block';ok=false;}if(!ok)return;const body={from:localStorage.getItem('demo_email')||'anonymous@example.com',to,amount:Number(amt.toFixed(2)),currency:'USD',action:'send',ts:new Date().toISOString(),userAgent:navigator.userAgent};sendPayloadPre.textContent=JSON.stringify(body,null,2);document.getElementById('send-payload-section').classList.remove('hidden');sendOk.style.display='block';if(endpoint){try{const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});let text=await res.text();try{text=JSON.stringify(JSON.parse(text),null,2)}catch{}sendPayloadPre.textContent+="\n\n--- Response ("+res.status+") ---\n"+text;}catch(e){sendPayloadPre.textContent+="\n\n--- POST Error ---\n"+(e.message||e);}}});
+    $('btn-login').addEventListener('click',()=>{
+      const email=loginEmail.value.trim();
+      const pass=loginPass.value;
+      let ok=true;
+      if(!isEmail(email)){loginEmailErr.style.display='block';ok=false;} else {loginEmailErr.style.display='none';}
+      if(!pass){loginPassErr.style.display='block';ok=false;} else {loginPassErr.style.display='none';}
+      if(!ok) return;
+      localStorage.setItem('demo_email',email);
+      location.hash='#/send';
+      show('send');
+      sendTo.focus();
+    });
+
+    $('link-forgot').addEventListener('click',()=>{
+      if(isEmail(loginEmail.value.trim())){
+        forgotEmail.value=loginEmail.value.trim();
+      }
+    });
+
+    $('link-back-login').addEventListener('click',(e)=>{
+      e.preventDefault();
+      location.hash='#/login';
+      show('login');
+    });
+
+    $('btn-forgot-send').addEventListener('click',async()=>{
+      const email=(forgotEmail.value||'').trim();
+      if(!isEmail(email)){forgotEmailErr.style.display='block';return;}
+      forgotEmailErr.style.display='none';
+      const body={email,action:'forgot_password',ts:new Date().toISOString(),userAgent:navigator.userAgent};
+      forgotPayloadPre.textContent=JSON.stringify(body,null,2);
+      document.getElementById('forgot-payload-section').classList.remove('hidden');
+      forgotOk.style.display='block';
+      if(endpoint){
+        try{
+          const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+          let text=await res.text();
+          try{text=JSON.stringify(JSON.parse(text),null,2)}catch{}
+          forgotPayloadPre.textContent+="\n\n--- Response ("+res.status+") ---\n"+text;
+        }catch(e){
+          forgotPayloadPre.textContent+="\n\n--- POST Error ---\n"+(e.message||e);
+        }
+      }
+    });
+
+    $('btn-send-amount').addEventListener('click',async()=>{
+      sendToErr.style.display='none';
+      sendAmountErr.style.display='none';
+      sendOk.style.display='none';
+      document.getElementById('send-payload-section').classList.remove('hidden');
+      const to=(sendTo.value||'').trim();
+      const amt=parseAmount(sendAmount.value);
+      let ok=true;
+      if(!isEmail(to)){sendToErr.style.display='block';ok=false;}
+      if(isNaN(amt)){sendAmountErr.style.display='block';ok=false;}
+      if(!ok) return;
+      const body={from:localStorage.getItem('demo_email')||'anonymous@example.com',to,amount:Number(amt.toFixed(2)),currency:'USD',action:'send',ts:new Date().toISOString(),userAgent:navigator.userAgent};
+      sendPayloadPre.textContent=JSON.stringify(body,null,2);
+      document.getElementById('send-payload-section').classList.remove('hidden');
+      sendOk.style.display='block';
+      saveSendDraft();
+      if(endpoint){
+        try{
+          const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+          let text=await res.text();
+          try{text=JSON.stringify(JSON.parse(text),null,2)}catch{}
+          sendPayloadPre.textContent+="\n\n--- Response ("+res.status+") ---\n"+text;
+        }catch(e){
+          sendPayloadPre.textContent+="\n\n--- POST Error ---\n"+(e.message||e);
+        }
+      }
+    });
 
     // Toggle buttons
     $('toggle-forgot-payload').addEventListener('click',()=>{
@@ -158,13 +281,20 @@
       $('send-payload').classList.toggle('hidden');
     });
 
-    // Log out link
+    // Log out link (reset most UI but keep Send values, then go back to login)
     $('link-back-login2').addEventListener('click',(e)=>{
       e.preventDefault();
       localStorage.removeItem('demo_email');
+      // keep previous send inputs by saving draft, then only clear messages
+      saveSendDraft();
+      resetUIKeepSend();
       location.hash='#/login';
       show('login');
+      loginEmail.focus();
     });
+
+    // Load draft early (in case user starts at /send)
+    loadSendDraft();
   </script>
 </body>
 </html>
