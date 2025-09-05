@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pay-style Test – Login / Send</title>
+  <style>
+    :root{
+      --pp-blue:#0070ba;
+      --pp-blue-dark:#003087;
+      --pp-ink:#111827;
+      --pp-gray:#6b7280;
+      --pp-border:#e5e7eb;
+      --pp-bg:#ffffff;
+      --pp-card:#ffffff;
+      --radius:14px;
+      --shadow:0 6px 24px rgba(16,24,40,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--pp-bg);color:var(--pp-ink)}
+    .topbar{height:56px;border-bottom:1px solid var(--pp-border);display:flex;align-items:center;padding:0 20px;gap:10px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px;color:var(--pp-blue-dark)}
+    .brand img{height:28px;width:auto;object-fit:contain}
+    .container{min-height:calc(100dvh - 56px);display:grid;place-items:center;padding:24px}
+    .card{width:100%;max-width:440px;background:var(--pp-card);border:1px solid var(--pp-border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card-body{padding:24px}
+    .card h1{margin:0 0 10px;font-size:22px;font-weight:800;color:var(--pp-blue-dark)}
+    .sub{margin:0 0 18px;color:var(--pp-gray);font-size:13px}
+    label{display:block;font-size:13px;color:#374151;margin:10px 0 6px}
+    input{width:100%;border:1px solid var(--pp-border);border-radius:10px;padding:12px 14px;font-size:14px;outline:none}
+    input:focus{border-color:var(--pp-blue);box-shadow:0 0 0 4px rgba(0,112,186,.18)}
+    .input-wrapper{position:relative;display:flex;align-items:center}
+    .input-wrapper input{width:100%;padding-right:36px}
+    .eye-icon{position:absolute;right:12px;cursor:default;width:18px;height:18px;fill:#9ca3af}
+    .btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;padding:12px 14px;font-weight:800;cursor:pointer;transition:filter .2s,transform .03s}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:linear-gradient(180deg,var(--pp-blue),#0a67ae);color:white}
+    .btn-primary:hover{filter:brightness(1.05)}
+    .btn-toggle{background:#f3f4f6;color:#111827;border:1px solid var(--pp-border);margin-top:8px}
+    .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+    .help{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:12px;color:var(--pp-gray)}
+    .link{color:var(--pp-blue);text-decoration:none;cursor:pointer}
+    .divider{height:1px;background:var(--pp-border)}
+    .info{font-size:12px;color:var(--pp-gray);margin-top:16px}
+    .success{color:#059669;font-size:13px;margin-top:10px;display:none}
+    .error{color:#dc2626;font-size:12px;display:none}
+    pre{background:#f3f4f6;border:1px solid var(--pp-border);border-radius:10px;padding:12px;max-height:220px;overflow:auto;font-size:12px}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Gluwa_logo.png"/>
+      <span id="brand-text">Gluwa Pay</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <div id="page-login" class="card-body">
+        <h1>Login</h1>
+        <p class="sub">Log in with your email and password.</p>
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" placeholder="name@example.com" autocomplete="email" required />
+        <div id="login-email-error" class="error">유효한 이메일을 입력해주세요.</div>
+        <label for="login-password">Password</label>
+        <div class="input-wrapper">
+          <input id="login-password" type="text" autocomplete="current-password" required />
+          <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12c-2.48 0-4.5-2.02-4.5-4.5S9.52 7.5 12 7.5s4.5 2.02 4.5 4.5S14.48 16.5 12 16.5z"/></svg>
+        </div>
+        <div id="login-password-error" class="error">패스워드를 입력해주세요.</div>
+        <button class="btn btn-primary" id="btn-login">Log In</button>
+        <div class="help">
+          <a class="link" href="#/forgot" id="link-forgot">Forgot your password?</a>
+          <span>Secure 🔒</span>
+        </div>
+        <p class="info">This is a demo for testing. No real authentication or payments occur.</p>
+      </div>
+      <div class="divider"></div>
+      <div id="page-forgot" class="card-body hidden">
+        <h1>Reset Password</h1>
+        <p class="sub">Enter your account email to receive a reset link.</p>
+        <label for="forgot-email">Email</label>
+        <input id="forgot-email" type="email" placeholder="name@example.com" autocomplete="email" />
+        <div id="forgot-email-error" class="error">유효한 이메일을 입력해주세요.</div>
+        <button class="btn btn-primary" id="btn-forgot-send">Send Reset Link</button>
+        <div id="forgot-success" class="success">릴셋 링크가 전송 되었습니다. 이메일을 확인 하세요.</div>
+        <div id="forgot-payload-section" class="hidden">
+          <button class="btn btn-toggle" id="toggle-forgot-payload">Toggle Request Payload</button>
+          <pre id="forgot-payload" class="hidden"></pre>
+        </div>
+        <div class="help">
+          <a class="link" href="#/login" id="link-back-login">← Back to Login</a>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div id="page-send" class="card-body hidden">
+        <h1>Send Money</h1>
+        <p class="sub">Enter the amount to send.</p>
+        <label for="send-to">Recipient (Email)</label>
+        <input id="send-to" type="email" placeholder="receiver@e.com" autocomplete="email" />
+        <div id="send-to-error" class="error">유효한 이메일을 입력해주세요.</div>
+        <label for="send-amount">Amount</label>
+        <input id="send-amount" type="text" inputmode="decimal" placeholder="e.g. 25.00" />
+        <div id="send-amount-error" class="error"></div>
+        <button class="btn btn-primary" id="btn-send-amount">Send</button>
+        <div id="send-success" class="success">Send successful! See payload below.</div>
+        <div id="send-payload-section" class="hidden">
+          <button class="btn btn-toggle" id="toggle-send-payload">Toggle Request Payload</button>
+          <pre id="send-payload" class="hidden"></pre>
+        </div>
+        <div class="help">
+          <a class="link" href="#/login" id="link-back-login2">← Log out / Switch account</a>
+          <span>Secure 🔒</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    const endpoint = params.get('endpoint') || null;
+    const company = params.get('company') || '';
+    if(company){ $('brand-text').textContent = company + ' Pay'; document.title = company + ' – Login / Send'; }
+
+    const pgLogin=$('page-login'), pgForgot=$('page-forgot'), pgSend=$('page-send');
+    const loginEmail=$('login-email'), loginPass=$('login-password');
+    const loginEmailErr=$('login-email-error'), loginPassErr=$('login-password-error');
+    const forgotEmail=$('forgot-email'), forgotEmailErr=$('forgot-email-error'), forgotOk=$('forgot-success'), forgotPayloadPre=$('forgot-payload');
+    const sendTo=$('send-to'), sendToErr=$('send-to-error'), sendAmount=$('send-amount'), sendAmountErr=$('send-amount-error'), sendOk=$('send-success'), sendPayloadPre=$('send-payload');
+
+    const isEmail=(v)=>/.+@.+\..+/.test(v);
+    const parseAmount=(v)=>{if(v==="")return NaN;const n=parseFloat(String(v).replace(/,/g,'').trim());return isNaN(n)?NaN:n;};
+
+    function show(page){pgLogin.classList.add('hidden');pgForgot.classList.add('hidden');pgSend.classList.add('hidden');if(page==='login')pgLogin.classList.remove('hidden');if(page==='forgot')pgForgot.classList.remove('hidden');if(page==='send')pgSend.classList.remove('hidden');}
+
+    function routeFromHash(){const h=(location.hash||'#/login').toLowerCase();if(h.startsWith('#/send')){show('send');return;}if(h.startsWith('#/forgot')){show('forgot');return;}show('login');}
+    routeFromHash();
+    window.addEventListener('hashchange',routeFromHash);
+
+    $('btn-login').addEventListener('click',()=>{const email=loginEmail.value.trim();const pass=loginPass.value;let ok=true;if(!isEmail(email)){loginEmailErr.style.display='block';ok=false;}else{loginEmailErr.style.display='none';}if(!pass){loginPassErr.style.display='block';ok=false;}else{loginPassErr.style.display='none';}if(!ok)return;localStorage.setItem('demo_email',email);location.hash='#/send';show('send');sendTo.focus();});
+
+    $('link-forgot').addEventListener('click',(e)=>{if(isEmail(loginEmail.value.trim())){forgotEmail.value=loginEmail.value.trim();}});
+
+    $('link-back-login').addEventListener('click',(e)=>{e.preventDefault();location.hash='#/login';show('login');});
+
+    $('btn-forgot-send').addEventListener('click',async()=>{const email=(forgotEmail.value||'').trim();if(!isEmail(email)){forgotEmailErr.style.display='block';return;}forgotEmailErr.style.display='none';const body={email,action:'forgot_password',ts:new Date().toISOString(),userAgent:navigator.userAgent};forgotPayloadPre.textContent=JSON.stringify(body,null,2);document.getElementById('forgot-payload-section').classList.remove('hidden');forgotOk.style.display='block';if(endpoint){try{const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});let text=await res.text();try{text=JSON.stringify(JSON.parse(text),null,2)}catch{}forgotPayloadPre.textContent+="\n\n--- Response ("+res.status+") ---\n"+text;}catch(e){forgotPayloadPre.textContent+="\n\n--- POST Error ---\n"+(e.message||e);}}});
+
+    $('btn-send-amount').addEventListener('click',async()=>{sendToErr.style.display='none';sendAmountErr.style.display='none';sendOk.style.display='none';document.getElementById('send-payload-section').classList.remove('hidden');const to=(sendTo.value||'').trim();const amt=parseAmount(sendAmount.value);let ok=true;if(!isEmail(to)){sendToErr.style.display='block';ok=false;}if(isNaN(amt)){sendAmountErr.style.display='block';ok=false;}if(!ok)return;const body={from:localStorage.getItem('demo_email')||'anonymous@example.com',to,amount:Number(amt.toFixed(2)),currency:'USD',action:'send',ts:new Date().toISOString(),userAgent:navigator.userAgent};sendPayloadPre.textContent=JSON.stringify(body,null,2);document.getElementById('send-payload-section').classList.remove('hidden');sendOk.style.display='block';if(endpoint){try{const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});let text=await res.text();try{text=JSON.stringify(JSON.parse(text),null,2)}catch{}sendPayloadPre.textContent+="\n\n--- Response ("+res.status+") ---\n"+text;}catch(e){sendPayloadPre.textContent+="\n\n--- POST Error ---\n"+(e.message||e);}}});
+
+    // Toggle buttons
+    $('toggle-forgot-payload').addEventListener('click',()=>{
+      $('forgot-payload').classList.toggle('hidden');
+    });
+    $('toggle-send-payload').addEventListener('click',()=>{
+      $('send-payload').classList.toggle('hidden');
+    });
+
+    // Log out link
+    $('link-back-login2').addEventListener('click',(e)=>{
+      e.preventDefault();
+      localStorage.removeItem('demo_email');
+      location.hash='#/login';
+      show('login');
+    });
+  </script>
+</body>
+</html>
